@@ -17,7 +17,7 @@ jobs:
         id: getversion
         run: |
           ver=`curl https://api.github.com/repos/cloudflare/cloudflared/releases/latest | jq -r '.tag_name'`
-          cver=`curl https://api.github.com/repos/minetaro12/mipsle-cloudflared/releases/latest | jq -r '.tag_name'`
+          cver=`curl https://api.github.com/repos/minetaro12/cloudflared-mipsle/releases/latest | jq -r '.tag_name'`
           echo "::set-output name=VER::$ver"
           echo "::set-output name=CVER::$cver"
 
