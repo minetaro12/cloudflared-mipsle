@@ -1,0 +1,53 @@
+name: Build and Release
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      ver: ${{ steps.getversion.outputs.VER }}
+      cver: ${{ steps.getversion.outputs.CVER }}
+    steps:
+      -
+        name: Get version
+        id: getversion
+        run: |
+          ver=`curl https://api.github.com/repos/cloudflare/cloudflared/releases/latest | jq -r '.tag_name'`
+          cver=`curl https://api.github.com/repos/minetaro12/mipsle-cloudflared/releases/latest | jq -r '.tag_name'`
+          echo "::set-output name=VER::$ver"
+          echo "::set-output name=CVER::$cver"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: check
+    if: ${{needs.check.outputs.ver}} !== ${{needs.check.outputs.cver}}
+    steps:
+      -
+        name: Install golang
+        run: |
+          sudo add-apt-repository ppa:longsleep/golang-backports -y
+          sudo apt update
+          sudo apt install -y golang
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Build
+        run: |
+          git clone https://github.com/cloudflare/cloudflared -b ${{needs.check.outputs.ver}} ../src
+          cd ../src
+          GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -trimpath -ldflags "-s -w" ./cmd/cloudflared/.
+          mv cloudflared cloudflared-linux-mipsle
+      - 
+        name: Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: ${{needs.check.outputs.ver}}
+          files: |
+              ../src/cloudflared-linux-mipsle
+
