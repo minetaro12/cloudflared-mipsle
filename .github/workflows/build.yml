@@ -48,6 +48,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           automatic_release_tag: ${{needs.check.outputs.ver}}
+          prerelease: false
           files: |
               ../src/cloudflared-linux-mipsle
 
