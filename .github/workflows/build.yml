@@ -40,7 +40,7 @@ jobs:
         run: |
           git clone https://github.com/cloudflare/cloudflared -b ${{needs.check.outputs.ver}} ../src
           cd ../src
-          GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -trimpath -ldflags "-s -w" ./cmd/cloudflared/.
+          GOOS=linux GOARCH=mipsle GOMIPS=softfloat make cloudflared
           mv cloudflared cloudflared-linux-mipsle
       - 
         name: Release
