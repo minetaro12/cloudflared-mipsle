@@ -29,15 +29,14 @@ jobs:
       -
         name: Install golang
         run: |
-          sudo add-apt-repository ppa:longsleep/golang-backports -y
-          sudo apt update
-          sudo apt install -y golang
+          curl https://go.dev/dl/go1.19.6.linux-amd64.tar.gz -Ls | sudo tar xzf - -C /usr/local/
       -
         name: Checkout
         uses: actions/checkout@v2
       - 
         name: Build
         run: |
+          export PATH=$PATH:/usr/local/go/bin
           git clone https://github.com/cloudflare/cloudflared -b ${{needs.check.outputs.ver}} ../src
           cd ../src
           GOOS=linux GOARCH=mipsle GOMIPS=softfloat make cloudflared
