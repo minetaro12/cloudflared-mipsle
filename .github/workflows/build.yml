@@ -9,8 +9,8 @@ jobs:
   check:
     runs-on: ubuntu-latest
     outputs:
-      ver: ${{ steps.getversion.outputs.VER }}
-      cver: ${{ steps.getversion.outputs.CVER }}
+      ver: ${{ steps.getversion.outputs.ver }}
+      cver: ${{ steps.getversion.outputs.cver }}
     steps:
       -
         name: Get version
@@ -18,13 +18,13 @@ jobs:
         run: |
           ver=`curl https://api.github.com/repos/cloudflare/cloudflared/releases/latest | jq -r '.tag_name'`
           cver=`curl https://api.github.com/repos/minetaro12/cloudflared-mipsle/releases/latest | jq -r '.tag_name'`
-          echo "::set-output name=VER::$ver"
-          echo "::set-output name=CVER::$cver"
+          echo "ver=${ver}" >> $GITHUB_OUTPUT
+          echo "cver=${cver}" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
     needs: check
-    if: ${{needs.check.outputs.ver != needs.check.outputs.cver}}
+    if: ${{ needs.check.outputs.ver != needs.check.outputs.cver }}
     steps:
       - 
         name: Set up Go
@@ -37,7 +37,7 @@ jobs:
       - 
         name: Build
         run: |
-          git clone https://github.com/cloudflare/cloudflared -b ${{needs.check.outputs.ver}} ../src
+          git clone https://github.com/cloudflare/cloudflared -b ${{ needs.check.outputs.ver }} ../src
           cd ../src
           GOOS=linux GOARCH=mipsle GOMIPS=softfloat make cloudflared
           mv cloudflared cloudflared-linux-mipsle
@@ -46,7 +46,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: ${{needs.check.outputs.ver}}
+          automatic_release_tag: ${{ needs.check.outputs.ver }}
           prerelease: false
           files: |
               ../src/cloudflared-linux-mipsle
