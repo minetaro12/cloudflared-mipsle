@@ -43,11 +43,9 @@ jobs:
           mv cloudflared cloudflared-linux-mipsle
       - 
         name: Release
-        uses: marvinpinto/action-automatic-releases@latest
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: ${{ needs.check.outputs.ver }}
-          prerelease: false
+          tag_name: ${{ needs.check.outputs.ver }}
           files: |
               ../src/cloudflared-linux-mipsle
 
