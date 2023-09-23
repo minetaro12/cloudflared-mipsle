@@ -39,8 +39,14 @@ jobs:
         run: |
           git clone https://github.com/cloudflare/cloudflared -b ${{ needs.check.outputs.ver }} ../src
           cd ../src
+
+          # Build for mipsle
           GOOS=linux GOARCH=mipsle GOMIPS=softfloat make cloudflared
           mv cloudflared cloudflared-linux-mipsle
+
+          # Build for mips
+          GOOS=linux GOARCH=mips GOMIPS=softfloat make cloudflared
+          mv cloudflared cloudflared-linux-mips
       - 
         name: Release
         uses: softprops/action-gh-release@v1
@@ -48,4 +54,5 @@ jobs:
           tag_name: ${{ needs.check.outputs.ver }}
           files: |
               ../src/cloudflared-linux-mipsle
+              ../src/cloudflared-linux-mips
 
